@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Lat Long Finder</string>
-
     <string name="location_label">LOCATION IS:</string>
     <string name="location_button">GET MY LOCATION</string>
     <string name="loc_update_button">START LOCATION UPDATES</string>
@@ -15,5 +14,7 @@
     <string name="action_settings">Settings</string>
     <string name="day_button">GET SUNRISE/SET/DAY LENGTH</string>
     <string name="content_desc_image">Map marker image</string>
-
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="map_button">SEE LOCATION ON MAP</string>
+    <string name="hello_world">Hello world!</string>
 </resources>

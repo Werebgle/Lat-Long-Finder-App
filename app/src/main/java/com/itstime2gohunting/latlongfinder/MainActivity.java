@@ -1,6 +1,7 @@
 package com.itstime2gohunting.latlongfinder;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.content.Context;
 import android.location.Location;
@@ -36,7 +37,6 @@ import java.io.IOException;
 
 public class MainActivity extends Activity implements ConnectionCallbacks,
         OnConnectionFailedListener, LocationListener {
-
     // LogCat tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -57,8 +57,8 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     private static int FATEST_INTERVAL = 5000; // 5 sec
     private static int DISPLACEMENT = 10; // 10 meters
 
-    private double latitude;
-    private double longitude;
+    public double latitude;
+    public double longitude;
 
     private TextView mLocationTextView;
     private TextView mSunriseTextView;
@@ -66,7 +66,9 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     private TextView mDayLengthTextView;
     private Button mLocationButton;
     private Button mLocUpdatesButton;
-//    private Button mDayButton;
+    private Button mMapButton;
+
+    //    private Button mDayButton;
     private SunriseSunset mSunriseSunset;
 
     @Override
@@ -81,6 +83,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         mDayLengthTextView = (TextView) findViewById(R.id.dayLengthTextView);
         mLocationButton = (Button) findViewById(R.id.locationButton);
         mLocUpdatesButton = (Button) findViewById(R.id.locUpdatesButton);
+        mMapButton = (Button) findViewById(R.id.mapButton);
 //        mDayButton = (Button) findViewById(R.id.dayButton);
 
         // First we need to check availability of play services
@@ -90,6 +93,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
             buildGoogleApiClient();
 
             createLocationRequest();
+
         }
 
         // Show location button click listener
@@ -111,13 +115,15 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
             }
         });
 
-        /*mDayButton.setOnClickListener(new View.OnClickListener() {
+        mMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                getData();
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                intent.putExtra("latitude", latitude);
+                intent.putExtra("longitude", longitude);
+                startActivity(intent);
             }
-        });*/
-
+        });
     }
 
     @Override
@@ -167,10 +173,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
             longitude = mLastLocation.getLongitude();
 
             mLocationTextView.setText(latitude + ", " + longitude);
-            Log.i(TAG, "button worked");
-
         } else {
-
             mLocationTextView
                     .setText("(Couldn't get the location. Make sure location is enabled on the device)");
         }
@@ -382,7 +385,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     private void updateDisplayDayLength() {
         double dayLength = mSunriseSunset.getDayLength();
         dayLength = dayLength / 3600;
-        dayLength = (double)Math.round(dayLength * 100)/100;
+        dayLength = (double) Math.round(dayLength * 100) / 100;
         String finalResultDayLength = Double.toString(dayLength);
         Log.i(TAG, finalResultDayLength);
         mDayLengthTextView.setText(finalResultDayLength.toString() + " hours");
@@ -415,5 +418,5 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         dialog.show(getFragmentManager(), "error_dialog");
     }
 
-//test
+
 }
