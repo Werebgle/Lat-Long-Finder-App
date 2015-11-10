@@ -17,4 +17,6 @@
     <string name="title_activity_maps">MapsActivity</string>
     <string name="map_button">SEE LOCATION ON MAP</string>
     <string name="hello_world">Hello world!</string>
+    <string name="conditions_label">CURRENTLY:</string>
+    <string name="temp_label">TEMP:</string>
 </resources>

@@ -30,6 +30,7 @@ import net.danlew.android.joda.JodaTimeAndroid;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,6 +38,7 @@ import java.io.IOException;
 
 public class MainActivity extends Activity implements ConnectionCallbacks,
         OnConnectionFailedListener, LocationListener {
+
     // LogCat tag
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -67,9 +69,10 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     private Button mLocationButton;
     private Button mLocUpdatesButton;
     private Button mMapButton;
-
-    //    private Button mDayButton;
+    private TextView mSummaryTextView;
+    private TextView mTempTextView;
     private SunriseSunset mSunriseSunset;
+    private Weather mWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +87,8 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         mLocationButton = (Button) findViewById(R.id.locationButton);
         mLocUpdatesButton = (Button) findViewById(R.id.locUpdatesButton);
         mMapButton = (Button) findViewById(R.id.mapButton);
-//        mDayButton = (Button) findViewById(R.id.dayButton);
+        mSummaryTextView = (TextView) findViewById(R.id.summaryTextView);
+        mTempTextView = (TextView) findViewById(R.id.tempTextView);
 
         // First we need to check availability of play services
         if (checkPlayServices()) {
@@ -103,6 +107,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
             public void onClick(View v) {
                 displayLocation();
                 getData();
+                getWeatherData();
             }
         });
 
@@ -255,10 +260,8 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
      * Starting the location updates
      */
     protected void startLocationUpdates() {
-
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
-
     }
 
     /**
@@ -280,10 +283,10 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
 
     @Override
     public void onConnected(Bundle arg0) {
-
-        // Once connected with google api, get the location
+        // Once connected with google api, get the location, sunrise/sunset data, and weather data
         displayLocation();
         getData();
+        getWeatherData();
 
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
@@ -308,6 +311,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     }
 
     private void getData() {
+        //url call to sunrise-sunset.org
         String dataUrl = "http://api.sunrise-sunset.org/json?lat="
                 + latitude + "&lng=" + longitude + "&formatted=0";
 
@@ -403,6 +407,78 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         return sunriseSunset;
     }
 
+    private void getWeatherData() {
+        String dataUrl = "http://www.myweather2.com/developer/forecast.ashx?uac=YZXJxx9DnY&output=json&query="
+                + latitude + "," + longitude + "&temp_unit=f&ws_unit=mph";
+
+        if (networkIsAvailable()) {
+            OkHttpClient client = new OkHttpClient();
+            com.squareup.okhttp.Request request = new com.squareup.okhttp.Request.Builder()
+                    .url(dataUrl)
+                    .build();
+
+            Call call = client.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(com.squareup.okhttp.Request request, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(com.squareup.okhttp.Response response) throws IOException {
+                    try {
+                        String jsonData = response.body().string();
+                        Log.v(TAG, jsonData);
+                        if (response.isSuccessful()) {
+                            mWeather = getCurrentWeatherDetails(jsonData);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateWeatherSummary();
+                                    updateTemp();
+                                }
+                            });
+                        } else {
+                            alertUserAboutError();
+                        }
+                    } catch (IOException e) {
+                        Log.e(TAG, "Exception Caught: ", e);
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Exception Caught: ", e);
+                    }
+                }
+            });
+        } else {
+            Toast.makeText(this, R.string.network_not_available_message, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private Weather getCurrentWeatherDetails(String jsonData) throws JSONException {
+        JSONObject root = new JSONObject(jsonData);
+
+        JSONObject results = root.getJSONObject("weather");
+        JSONArray data = results.getJSONArray("curren_weather");
+
+        JSONObject jsonObject = data.getJSONObject(0);
+
+        Weather weather = new Weather();
+        weather.setSummary(jsonObject.getString("weather_text"));
+        weather.setTemp(jsonObject.getDouble("temp"));
+
+        return weather;
+    }
+
+    private void updateWeatherSummary() {
+        String summary = mWeather.getSummary();
+        mSummaryTextView.setText(summary);
+    }
+
+    private void updateTemp(){
+        double temp = mWeather.getTemp();
+        String finalTemp = Double.toString(temp);
+        mTempTextView.setText(finalTemp + " degrees");
+    }
+
     private boolean networkIsAvailable() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
@@ -417,6 +493,4 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         AlertDialogFragment dialog = new AlertDialogFragment();
         dialog.show(getFragmentManager(), "error_dialog");
     }
-
-
 }
