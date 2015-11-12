@@ -18,5 +18,7 @@
     <string name="map_button">SEE LOCATION ON MAP</string>
     <string name="hello_world">Hello world!</string>
     <string name="conditions_label">CURRENTLY:</string>
-    <string name="temp_label">TEMP:</string>
+    <string name="temperature_label">TEMP:</string>
+    <string name="hours_label">hours</string>
+    <string name="no_location_message">"(Couldn't get the location. Make sure location is enabled on the device)"</string>
 </resources>

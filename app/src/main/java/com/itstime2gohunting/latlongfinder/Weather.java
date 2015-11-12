@@ -2,9 +2,6 @@ package com.itstime2gohunting.latlongfinder;
 
 import android.util.Log;
 
-/**
- * Created by John on 11/9/2015.
- */
 public class Weather {
     private static final String TAG = Weather.class.getSimpleName();
     private String mSummary;

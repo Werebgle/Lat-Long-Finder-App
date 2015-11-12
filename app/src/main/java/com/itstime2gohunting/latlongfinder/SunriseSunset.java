@@ -1,8 +1,5 @@
 package com.itstime2gohunting.latlongfinder;
 
-/**
- * Created by John on 10/28/2015.
- */
 public class SunriseSunset {
     private String mSunrise;
     private String mSunset;

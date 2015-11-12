@@ -92,12 +92,9 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
 
         // First we need to check availability of play services
         if (checkPlayServices()) {
-
             // Building the GoogleApi client
             buildGoogleApiClient();
-
             createLocationRequest();
-
         }
 
         // Show location button click listener
@@ -142,9 +139,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     @Override
     protected void onResume() {
         super.onResume();
-
         checkPlayServices();
-
         // Resuming the periodic location updates
         if (mGoogleApiClient.isConnected() && mRequestingLocationUpdates) {
             startLocationUpdates();
@@ -180,7 +175,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
             mLocationTextView.setText(latitude + ", " + longitude);
         } else {
             mLocationTextView
-                    .setText("(Couldn't get the location. Make sure location is enabled on the device)");
+                    .setText(R.string.no_location_message);
         }
     }
 
@@ -221,7 +216,8 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build();
+                .addApi(LocationServices.API)
+                .build();
     }
 
     /**
@@ -346,9 +342,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
                         } else {
                             alertUserAboutError();
                         }
-                    } catch (IOException e) {
-                        Log.e(TAG, "Exception Caught: ", e);
-                    } catch (JSONException e) {
+                    } catch (IOException | JSONException e) {
                         Log.e(TAG, "Exception Caught: ", e);
                     }
                 }
@@ -392,7 +386,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         dayLength = (double) Math.round(dayLength * 100) / 100;
         String finalResultDayLength = Double.toString(dayLength);
         Log.i(TAG, finalResultDayLength);
-        mDayLengthTextView.setText(finalResultDayLength.toString() + " hours");
+        mDayLengthTextView.setText(finalResultDayLength);
     }
 
     private SunriseSunset getCurrentDetails(String jsonData) throws JSONException {
@@ -441,9 +435,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
                         } else {
                             alertUserAboutError();
                         }
-                    } catch (IOException e) {
-                        Log.e(TAG, "Exception Caught: ", e);
-                    } catch (JSONException e) {
+                    } catch (IOException | JSONException e) {
                         Log.e(TAG, "Exception Caught: ", e);
                     }
                 }
@@ -476,7 +468,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     private void updateTemp(){
         double temp = mWeather.getTemp();
         String finalTemp = Double.toString(temp);
-        mTempTextView.setText(finalTemp + " degrees");
+        mTempTextView.setText(finalTemp);
     }
 
     private boolean networkIsAvailable() {

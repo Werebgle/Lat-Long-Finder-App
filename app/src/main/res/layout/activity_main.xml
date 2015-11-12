@@ -96,14 +96,33 @@
             android:textSize="14sp"
             android:gravity="center"/>
 
-        <TextView
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/dayLengthTextView"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:layout_weight="1"
-            android:gravity="center"/>
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/dayLengthTextView"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:layout_marginRight="3dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/hours_label"
+                android:id="@+id/hoursLabel"
+                android:layout_weight="1"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:gravity="left"/>
+        </LinearLayout>
+
     </LinearLayout>
 
 
@@ -127,7 +146,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/temp_label"
+            android:text="@string/temperature_label"
             android:id="@+id/temperatureLabel"
             android:layout_weight="1"
             android:gravity="center"
@@ -156,9 +175,10 @@
             android:layout_height="wrap_content"
             android:id="@+id/tempTextView"
             android:layout_weight="1"
-            android:gravity="center"
             android:textColor="@color/white"
-            android:textSize="14sp"/>
+            android:textSize="14sp"
+            android:gravity="center"/>
+
     </LinearLayout>
 
     <Button
