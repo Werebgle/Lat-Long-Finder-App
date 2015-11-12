@@ -96,32 +96,14 @@
             android:textSize="14sp"
             android:gravity="center"/>
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/dayLengthTextView"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:layout_weight="1"
-                android:gravity="right"
-                android:layout_marginRight="3dp"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/hours_label"
-                android:id="@+id/hoursLabel"
-                android:layout_weight="1"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
-                android:gravity="left"/>
-        </LinearLayout>
+            android:id="@+id/dayLengthTextView"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:layout_weight="1"
+            android:gravity="center"/>
 
     </LinearLayout>
 
@@ -153,6 +135,17 @@
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/elevation_label"
+            android:id="@+id/elevationLabel"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <LinearLayout
@@ -176,6 +169,15 @@
             android:id="@+id/tempTextView"
             android:layout_weight="1"
             android:textColor="@color/white"
+            android:textSize="14sp"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/elevationTextView"
+            android:layout_weight="1"
+            android:textColor="@android:color/white"
             android:textSize="14sp"
             android:gravity="center"/>
 

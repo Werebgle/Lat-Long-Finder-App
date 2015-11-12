@@ -73,6 +73,8 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     private TextView mTempTextView;
     private SunriseSunset mSunriseSunset;
     private Weather mWeather;
+    private Elevation mElevation;
+    private TextView mElevationTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +91,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         mMapButton = (Button) findViewById(R.id.mapButton);
         mSummaryTextView = (TextView) findViewById(R.id.summaryTextView);
         mTempTextView = (TextView) findViewById(R.id.tempTextView);
+        mElevationTextView = (TextView) findViewById(R.id.elevationTextView);
 
         // First we need to check availability of play services
         if (checkPlayServices()) {
@@ -283,6 +286,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         displayLocation();
         getData();
         getWeatherData();
+        getElevation();
 
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
@@ -352,6 +356,18 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         }
     }
 
+    private SunriseSunset getCurrentDetails(String jsonData) throws JSONException {
+        JSONObject root = new JSONObject(jsonData);
+        JSONObject results = root.getJSONObject("results");
+
+        SunriseSunset sunriseSunset = new SunriseSunset();
+        sunriseSunset.setSunrise(results.getString("sunrise"));
+        sunriseSunset.setSunset(results.getString("sunset"));
+        sunriseSunset.setDayLength(results.getDouble("day_length"));
+
+        return sunriseSunset;
+    }
+
     private void updateDisplaySunrise() {
         StringBuilder stringBuilderSunrise = new StringBuilder();
         stringBuilderSunrise.append(mSunriseSunset.getSunrise());
@@ -386,19 +402,7 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
         dayLength = (double) Math.round(dayLength * 100) / 100;
         String finalResultDayLength = Double.toString(dayLength);
         Log.i(TAG, finalResultDayLength);
-        mDayLengthTextView.setText(finalResultDayLength);
-    }
-
-    private SunriseSunset getCurrentDetails(String jsonData) throws JSONException {
-        JSONObject root = new JSONObject(jsonData);
-        JSONObject results = root.getJSONObject("results");
-
-        SunriseSunset sunriseSunset = new SunriseSunset();
-        sunriseSunset.setSunrise(results.getString("sunrise"));
-        sunriseSunset.setSunset(results.getString("sunset"));
-        sunriseSunset.setDayLength(results.getDouble("day_length"));
-
-        return sunriseSunset;
+        mDayLengthTextView.setText(finalResultDayLength + " hours");
     }
 
     private void getWeatherData() {
@@ -415,7 +419,6 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
             call.enqueue(new Callback() {
                 @Override
                 public void onFailure(com.squareup.okhttp.Request request, IOException e) {
-
                 }
 
                 @Override
@@ -447,10 +450,8 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
 
     private Weather getCurrentWeatherDetails(String jsonData) throws JSONException {
         JSONObject root = new JSONObject(jsonData);
-
         JSONObject results = root.getJSONObject("weather");
         JSONArray data = results.getJSONArray("curren_weather");
-
         JSONObject jsonObject = data.getJSONObject(0);
 
         Weather weather = new Weather();
@@ -468,7 +469,69 @@ public class MainActivity extends Activity implements ConnectionCallbacks,
     private void updateTemp(){
         double temp = mWeather.getTemp();
         String finalTemp = Double.toString(temp);
-        mTempTextView.setText(finalTemp);
+        mTempTextView.setText(finalTemp + " F");
+    }
+
+    private void getElevation() {
+        //url call to sunrise-sunset.org
+        String dataUrl = "https://maps.googleapis.com/maps/api/elevation/json?locations=" +
+            latitude + "," + longitude + "&key=AIzaSyCwSM2l0EfndpViyvpHo-zBDq8-eG5mH8s";
+
+        if (networkIsAvailable()) {
+            OkHttpClient client = new OkHttpClient();
+            com.squareup.okhttp.Request request = new com.squareup.okhttp.Request.Builder()
+                    .url(dataUrl)
+                    .build();
+
+            Call call = client.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(com.squareup.okhttp.Request request, IOException e) {
+                }
+
+                @Override
+                public void onResponse(com.squareup.okhttp.Response response) throws IOException {
+                    try {
+                        String jsonData = response.body().string();
+                        Log.v(TAG, jsonData);
+                        if (response.isSuccessful()) {
+                            mElevation = getCurrentElevation(jsonData);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateDisplayElevation();
+                                }
+                            });
+                        } else {
+                            alertUserAboutError();
+                        }
+                    } catch (IOException | JSONException e) {
+                        Log.e(TAG, "Exception Caught: ", e);
+                    }
+                }
+            });
+        } else {
+            Toast.makeText(this, R.string.network_not_available_message, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private Elevation getCurrentElevation(String jsonData) throws JSONException {
+        JSONObject root = new JSONObject(jsonData);
+        JSONArray data = root.getJSONArray("results");
+        JSONObject jsonObject = data.getJSONObject(0);
+
+        Elevation elevation = new Elevation();
+        elevation.setElevation(jsonObject.getDouble("elevation"));
+
+        return elevation;
+    }
+
+    private void updateDisplayElevation(){
+        double elev = mElevation.getElevation();
+        elev = elev * 3.28;
+        elev = (double) Math.round(elev * 100) / 100;
+        String finalElev = Double.toString(elev);
+        mElevationTextView.setText(finalElev + " feet");
     }
 
     private boolean networkIsAvailable() {
